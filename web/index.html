@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>QRbarik</title>
+</head>
+<body>
+    <header class="grid-container">
+        <img class="grid-item-1-1 logo" src="assets/qrbar_logo.png" alt="logo">
+        <span class="grid-item-2-2 logotext">QRbarik</span>
+        <button class="grid-item-9-2">Generate QRcode</button>
+        <button class="grid-item-11-2">Read QRcode</button>
+    </header>
+    <main>
+        <div class="qr-generator-container">
+            <div class="qr-generator-left-container">
+                <textarea name="qrGeneratorTextarea" id="qrGeneratorTextarea" placeholder="Enter your text"></textarea>
+                <section class="grid-container-2-column">
+                    <button class="grid-item-1-1 bordered-button">Add custom image</button>
+                    <button class="grid-item-2-1 bordered-button">Improve</button>
+                </section>
+                <button bordered-button>Generate QRcode</button>
+            </div>
+            <div class="qr-generator-right-container">
+                    <img id="qrcodeImage" class="qrcode-image" src="assets/qr_code_placeholder.png" alt="qrplaceholder">
+                    <section class="grid-container-2-column">
+                        <button class="grid-item-1-1 bordered-button">
+                            <img src="assets/direct-download.png" alt="download" class="icon-download">
+                        </button>
+                        <button class="grid-item-2-1 bordered-button">
+                            <img src="assets/link.png" alt="copy" class="icon-copylink">
+                        </button>
+                    </section>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
