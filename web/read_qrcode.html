@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>QRbarik</title>
+</head>
+<body>
+    <header class="header-wrapper">
+        <img class="grid-item-1-1 logo" src="assets/qrbar_logo.png" alt="logo">
+        <span class="grid-item-2-2 logotext">QRbarik</span>
+        <a href="generate_qrcode.html" class="generate-qrcode">Generate QRcode</a>
+        <a href="read_qrcode.html" class="read-qrcode">Read QRcode</a>
+    </header>
+    <main>
+        <div class="main-wrapper">
+            <form method="post">
+                <label class="input-label">
+                    <input type="file" name="file">
+                    <span><i class="fa-solid fa-upload"></i></span>
+                    <span>Upload file</span>
+                </label>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
