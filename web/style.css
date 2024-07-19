@@ -9,7 +9,7 @@
 }
 
 body{
-    margin: 0;
+    margin: 0 12.5% 0 12.5%;
     padding: 0;
 }
 
@@ -23,18 +23,29 @@ body{
     text-align: center;
 }
 
-header{
-    margin: 50px 180px 48px 180px;
+button{
+    font-size: 26px;
+    text-decoration: none;
+    background-color: white;
 }
 
-.grid-container{
+.header-wrapper{
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     column-gap: 24px;
+    margin: 50px 0 48px 0;
+}
+
+.header-wrapper > .read-qrcode{
+    letter-spacing: 2px;
 }
 
 .grid-item-1-1{
     grid-column: 1 / span 1;
+}
+
+.grid-item-2-1{
+    grid-column: 2 / span 1;
 }
 
 .grid-item-1-2{
@@ -53,12 +64,6 @@ header{
     grid-column: 11 / span 2;
 }
 
-button{
-    font-size: 26px;
-    text-decoration: none;
-    background-color: white;
-}
-
 header button{
     border: none;
     padding: 1px;
@@ -72,78 +77,287 @@ header button:hover{
 }
 
 main{
-    margin: 0px 180px 50px 180px;
+    margin: 0px 0 50px 0;
     /* width: 100%; */
 }
 
-.qr-generator-container{
-    display: flex;
+.main-wrapper{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
     border-radius: 12px;
     border: solid 5px;
     border-color: black;
     padding: 30px;
-    gap: 30px;
-    max-width: 100%;
-    width: auto;
-}
-
-.qr-generator-left-container{
-    gap: 30px;
-    display: flex;
-    flex-direction: column;
-}
-
-.qr-generator-rigth-container{
-    gap: 30px;
-    display: flex;
-    flex-direction: column;
-}
-
-.qr-generator-left-container button{
-    padding: 0px;
-    margin: 0px;
-    border: solid 5px;
-    border-radius: 12px;
-    border-color: black;
-    background-color: white;
-}
-
-.qr-generator-right-container .qrcode-image{
-    width: 310px;
-    height: 310px;
-}
-
-.qr-generator-right-container button{
-    padding: 0px;
-    margin: 0px;
-    border: solid 5px;
-    border-radius: 12px;
-    border-color: black;
-    background-color: white;
-    height: 55px;
-}
-
-button .icon-download{
-    width: 25px;
-    height: 25px;
-}
-
-button .icon-copylink{
-    width: 30px;
-    height: 30px;
-}
-
-.grid-container-2-column{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
     column-gap: 30px;
 }
 
+.main-left-wrapper{
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 0.88fr 0.12fr 0.12fr;
+    column-gap: 30px;
+    row-gap: 30px;
+    display: grid;
+    overflow: hidden;
+    height: 100%;
+}
+
+.main-left-wrapper > .add-custom-image{
+    font-size: 24px;
+}
+
+.main-right-wrapper{
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr minmax(0.12fr, 1fr);
+    column-gap: 30px;
+    row-gap: 30px;
+    display: grid;
+    overflow: hidden;
+    height: 100%;
+}
+
+.main-right-wrapper > button{
+    height: 100%;
+}
+
+.bordered-button{
+    padding: auto;
+    margin: 0px;
+    border: solid 5px;
+    border-radius: 12px;
+    border-color: black;
+    background-color: white;
+    transition: 0.15s ease-in;
+}
+
+.bordered-button:hover{
+    cursor: pointer;
+    background-color: black;
+    color: white;
+}
+
+.bordered-button > i{
+    transition: 0.25s ease-in;
+}
+
+.bordered-button:hover i{
+    color: white;
+}
+
+.image-wrapper{
+    padding: 14px;
+    border-radius: 12px;
+    border: solid 5px black;
+}
+
+.image-wrapper > img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 textarea{
-    width: 620px;
-    height: 270px;
+    font-size: 26px;
     resize: none;
     border: solid 5px;
     border-radius: 12px;
     border-color: black;
+}
+
+@media screen and (max-width: 1585px) {
+    body{
+        margin: 0 9% 0 9%;
+    }
+}
+
+@media screen and (max-width: 1450px) {
+    body{
+        margin: 0 5% 0 5%;
+    }
+}
+
+@media screen and (max-width: 1320px) {
+    body{
+        margin: 0 2% 0 2%;
+    }
+}
+
+@media screen and (max-width: 1238px) {
+    .bordered-button{
+        font-size: 22px;
+    }
+
+    textarea{
+        font-size: 22px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 20px;
+    }
+
+}
+
+@media screen and (max-width: 1074px) {
+    .bordered-button{
+        font-size: 20px;
+    }
+
+    .header-wrapper{
+        margin: 40px 0 38px 0;
+    }
+
+    textarea{
+        font-size: 20px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 18px;
+    }
+}
+
+@media screen and (max-width: 992px) {
+    .bordered-button{
+        font-size: 18px;
+    }
+
+    textarea{
+        font-size: 18px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 911px) {
+    .bordered-button{
+        font-size: 16px;
+    }
+
+    textarea{
+        font-size: 16px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 14px;
+    }
+
+    .logotext{
+        font-size: 30px;
+        text-align: center;
+    }
+
+    .header-wrapper > button{
+        font-size: 18px;
+    }
+
+    .main-right-wrapper{
+        column-gap: 20px;
+        row-gap: 20px;
+    }
+
+    .main-left-wrapper{
+        column-gap: 20px;
+        row-gap: 20px;
+    }
+
+    .main-wrapper{
+        column-gap: 20px;
+        padding: 20px;
+    }
+}
+
+@media screen and (max-width: 763px) {
+    .header-wrapper{
+        margin: 30px 0 28px 0;
+    }
+
+    .main-wrapper{
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+        row-gap: 20px;
+    }
+
+    .grid-item-9-2{
+        grid-column: 7 / span 3;
+    }
+
+    .grid-item-11-2{
+        grid-column: 10 / span 3;
+    }
+
+    .bordered-button{
+        font-size: 24px;
+    }
+
+    textarea{
+        font-size: 24px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 20px;
+    }
+}
+
+@media screen and (max-width: 526px) {
+    .bordered-button{
+        font-size: 20px;
+    }
+
+    textarea{
+        font-size: 20px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .logotext{
+        position: absolute;
+        visibility: hidden;
+    }
+
+    .grid-item-9-2{
+        grid-column: 5 / span 4;
+    }
+
+    .grid-item-11-2{
+        grid-column: 9 / span 4;
+    }
+}
+
+@media screen and (max-width: 445px) {
+    .bordered-button{
+        font-size: 16px;
+    }
+
+    textarea{
+        font-size: 16px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 366px) {
+    .logotext{
+        position: absolute;
+        visibility: hidden;
+    }
+
+    .grid-item-9-2{
+        grid-column: 3 / span 5;
+    }
+
+    .grid-item-11-2{
+        grid-column: 8 / span 5;
+    }
+
+    .header-wrapper > button{
+        font-size: 12px;
+    }
 }

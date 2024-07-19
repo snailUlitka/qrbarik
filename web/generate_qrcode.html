@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>QRbarik</title>
+</head>
+<body>
+    <header class="header-wrapper">
+        <img class="grid-item-1-1 logo" src="assets/qrbar_logo.png" alt="logo">
+        <span class="grid-item-2-2 logotext">QRbarik</span>
+        <button class="grid-item-9-2">Generate QRcode</button>
+        <button class="grid-item-11-2 read-qrcode">Read QRcode</button>
+    </header>
+    <main>
+        <div class="main-wrapper">
+            <div class="main-left-wrapper">
+                <textarea class="grid-item-1-2" name="qrGeneratorTextarea" id="qrGeneratorTextarea" placeholder="Enter your text"></textarea>
+                <button class="grid-item-1-1 bordered-button add-custom-image">Add custom image</button>
+                <button class="grid-item-2-1 bordered-button">Improve</button>
+                <button class="grid-item-1-2 bordered-button">Generate QRcode</button>
+            </div>
+            <div class="main-right-wrapper">
+                <div class="image-wrapper grid-item-1-2">
+                    <img id="qrcodeImage" src="assets/qr_code_placeholder.png" alt="qrplaceholder">
+                </div>
+                <button class="grid-item-1-1 bordered-button">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </button>
+                <button class="grid-item-2-1 bordered-button">
+                    <i class="fa-solid fa-copy"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
