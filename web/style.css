@@ -9,6 +9,9 @@
 }
 
 body{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     margin: 0 12.5% 0 12.5%;
     padding: 0;
 }
@@ -77,6 +80,7 @@ a{
 }
 
 .header-wrapper{
+    width: 80%;
     display: grid;
     grid-template-columns: repeat(12, 1fr);
     column-gap: 24px;
@@ -113,19 +117,19 @@ a{
 
 .header-wrapper a{
     border: none;
-    padding: 1px;
     text-align: center;
+    transition: all 0.2s ease-in-out;
 }
 
 .header-wrapper a:hover{
-    font-size: 27px;
-    color: #515151;
+    color: white;
     cursor: pointer;
-    padding: 0px;
+    -webkit-text-stroke: black 1px;
 }
 
 main{
-    margin: 0px 0 50px 0;
+    margin: 0 0 50px 0;
+    width: 80%;
     /* width: 100%; */
 }
 
@@ -222,25 +226,25 @@ textarea{
     }
 }
 
-@media screen and (max-width: 1585px) {
+@media screen and (max-width: 1980px) {
     body{
         margin: 0 9% 0 9%;
     }
 }
 
-@media screen and (max-width: 1450px) {
+@media screen and (max-width: 1811px) {
     body{
         margin: 0 5% 0 5%;
     }
 }
 
-@media screen and (max-width: 1320px) {
+@media screen and (max-width: 1650px) {
     body{
         margin: 0 2% 0 2%;
     }
 }
 
-@media screen and (max-width: 1238px) {
+@media screen and (max-width: 1546px) {
     .bordered-button{
         font-size: 22px;
     }
@@ -255,7 +259,15 @@ textarea{
 
 }
 
-@media screen and (max-width: 1074px) {
+@media screen and (max-width: 1342px) {
+    main{
+        width: 85%;
+    }
+
+    .header-wrapper{
+        width: 85%;
+    }
+
     .bordered-button{
         font-size: 20px;
     }
@@ -273,7 +285,14 @@ textarea{
     }
 }
 
-@media screen and (max-width: 992px) {
+@media screen and (max-width: 1240px) {
+    main{
+        width: 90%;
+    }
+
+    .header-wrapper{
+        width: 90%;
+    }
     .bordered-button{
         font-size: 18px;
     }
@@ -284,6 +303,27 @@ textarea{
 
     .main-left-wrapper > .add-custom-image{
         font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 1012px) {
+    main{
+        width: 95%;
+    }
+
+    .header-wrapper{
+        width: 95%;
+    }
+    .bordered-button{
+        font-size: 16px;
+    }
+
+    textarea{
+        font-size: 16px;
+    }
+
+    .main-left-wrapper > .add-custom-image{
+        font-size: 14px;
     }
 }
 
