@@ -118,7 +118,6 @@ a{
 .header-wrapper a{
     border: none;
     text-align: center;
-    transition: all 0.2s ease-in-out;
 }
 
 .header-wrapper a:hover{
