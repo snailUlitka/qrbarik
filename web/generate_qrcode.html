@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="script.js"></script>
     <link rel="icon" href="assets/qrbar_icon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -21,7 +22,7 @@
                 <textarea class="grid-item-1-2" name="qrGeneratorTextarea" id="qrGeneratorTextarea" placeholder="Enter your text"></textarea>
                 <button class="grid-item-1-1 bordered-button add-custom-image">Add custom image</button>
                 <button class="grid-item-2-1 bordered-button">Improve</button>
-                <button class="grid-item-1-2 bordered-button">Generate QRcode</button>
+                <button type='button' onclick="postData()" form="textform" class="grid-item-1-2 bordered-button">Generate QRcode</button>
             </div>
             <div class="main-right-wrapper">
                 <div class="image-wrapper grid-item-1-2">

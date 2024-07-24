@@ -215,6 +215,10 @@ textarea{
     border-color: black;
 }
 
+textarea:focus{
+    outline: 0;
+}
+
 @media screen and (max-width: 1752px) {
     .read-qrcode{
         grid-column: 11 / span 2;
