@@ -23,16 +23,13 @@ def generate_qr_code():
     
     return "Await for a 'text' key in JSON request", 400
 
-@app.route('/read', methods=['GET'])
+@app.route('/read', methods=['POST'])
 def read_qr_code():
-    info: dict[str, Any] = request.json
+    if 'file' not in request.files:
+        return jsonify({'error': 'Требуется файл изображения'}), 400
     
-    if not 'image' in info:
-        return 'Await for a "image" key in JSON request', 400
-    
-    img_info = info.get('image') # Base64 encoded image
-    image_bytes = base64.b64decode(img_info)
-    image = Image.open(io.BytesIO(image_bytes))
+    file = request.files['file']
+    image = Image.open(file.stream)
     image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR) # Bytes array from the image
     det = cv2.QRCodeDetector()
     retval, decoded_info, _, _ = det.detectAndDecodeMulti(image_cv) # Detects qr-code on image
@@ -42,5 +39,5 @@ def read_qr_code():
         for info in decoded_info:
             results.append(info)
     
-    return jsonify(results), 200
+    return jsonify({"text": results}), 200
     
