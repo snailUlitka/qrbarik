@@ -1,5 +1,3 @@
-let text = document.getElementById("textform").value;
-
 async function postData(){
     let text = document.getElementById("qrGeneratorTextarea").value;
 
@@ -13,5 +11,4 @@ async function postData(){
             body: textJSON
         })
     }
-
 }
