@@ -1,7 +1,5 @@
 from typing import Any
 from PIL import Image
-import io
-import base64
 import numpy as np
 import cv2
 
@@ -26,7 +24,7 @@ def generate_qr_code():
 @app.route('/read', methods=['POST'])
 def read_qr_code():
     if 'file' not in request.files:
-        return jsonify({'error': 'Требуется файл изображения'}), 400
+        return jsonify({'error': 'Await for image file'}), 400
     
     file = request.files['file']
     image = Image.open(file.stream)
