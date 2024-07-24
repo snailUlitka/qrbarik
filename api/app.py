@@ -1,8 +1,12 @@
 from typing import Any
+from PIL import Image
+import io
+import base64
+import numpy as np
+import cv2
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
 
 app = Flask(__name__)
 
@@ -16,4 +20,27 @@ def generate_qr_code():
     if isinstance(text_to_generate, str):
         # TODO: Invoke func for QR-code generating
         return jsonify("result"), 200
+    
     return "Await for a 'text' key in JSON request", 400
+
+@app.route('/read', methods=['GET'])
+def read_qr_code():
+    info: dict[str, Any] = request.json
+    
+    if not 'image' in info:
+        return 'Await for a "image" key in JSON request', 400
+    
+    img_info = info.get('image') # Base64 encoded image
+    image_bytes = base64.b64decode(img_info)
+    image = Image.open(io.BytesIO(image_bytes))
+    image_cv = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR) # Bytes array from the image
+    det = cv2.QRCodeDetector()
+    retval, decoded_info, _, _ = det.detectAndDecodeMulti(image_cv) # Detects qr-code on image
+
+    results = []
+    if retval:
+        for info in decoded_info:
+            results.append(info)
+    
+    return jsonify(results), 200
+    
