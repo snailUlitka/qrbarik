@@ -17,11 +17,10 @@
     </header>
     <main>
         <div class="main-wrapper">
-            <form method="post">
+            <form action="http://127.0.0.1:7845/read" method="post" enctype="multipart/form-data">
                 <label class="input-label">
-                    <input type="file" name="file">
+                    <input id="file" type="file" name="file" onchange="form.submit()">
                     <span><i class="fa-solid fa-upload"></i></span>
-                    <span>Upload file</span>
                 </label>
             </form>
         </div>
