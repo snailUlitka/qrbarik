@@ -1,0 +1,89 @@
+swagger: "2.0"
+info:
+  title: QR Code API
+  description: API for generating and reading QR codes
+  version: 1.0.0
+host: 127.0.0.1:7845
+schemes:
+  - http
+paths:
+  /generate:
+    post:
+      summary: Generate QR code
+      description: Generates a QR code from the provided text
+      parameters:
+        - in: body
+          name: text
+          description: JSON object with text to generate QR code
+          required: true
+          schema:
+            type: object
+            properties:
+              text:
+                type: string
+                example: https://vk.com/feed
+      responses:
+        200:
+          description: Successfully generated QR code
+          schema:
+            type: object
+            properties:
+              image:
+                type: string
+                format: byte
+        400:
+          description: Bad request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Await for a 'text' key in JSON request
+        default:
+          description: Unexpected error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: An unexpected error occurred.
+  /read:
+    post:
+      summary: Read QR code
+      description: Reads a QR code from the provided image file.
+      consumes:
+        - multipart/form-data
+      parameters:
+        - name: file
+          in: formData
+          description: The image file containing the QR code
+          required: true
+          type: file
+      responses:
+        200:
+          description: QR Code read successfully
+          schema:
+            type: object
+            properties:
+              text:
+                type: array
+                items:
+                  type: string
+                description: A URL or a text
+                example: [https://vk.com/feed]
+        400:
+          description: Bad request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Await for image file
+        default:
+          description: Unexpected error
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: An unexpected error occurred.

@@ -5,12 +5,34 @@ import cv2
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from flasgger import Swagger, swag_from
 
 
 app = Flask(__name__)
 CORS(app)
+app.config['SWAGGER'] = {
+    'title': 'QR Code API',
+    'uiversion': 3,
+    'openapi': '3.0.0',
+}
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": 'swagger',
+            "route": '/swagger.json',
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/swagger"
+}
+swagger = Swagger(app, config=swagger_config)
 
-@app.route('/generate', methods=['POST'])
+@app.route('/generate', methods=['POST'])  
+@swag_from('C:/Users/russk/qrbarik/api/documentation/API.yml')
 def generate_qr_code():
     info: dict[str, Any] = request.json
     text_to_generate = info.get('text')
@@ -22,6 +44,7 @@ def generate_qr_code():
     return "Await for a 'text' key in JSON request", 400
 
 @app.route('/read', methods=['POST'])
+@swag_from('C:/Users/russk/qrbarik/api/documentation/API.yml')
 def read_qr_code():
     if 'file' not in request.files:
         return jsonify({'error': 'Await for image file'}), 400
