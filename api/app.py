@@ -32,7 +32,7 @@ swagger_config = {
 swagger = Swagger(app, config=swagger_config)
 
 @app.route('/generate', methods=['POST'])  
-@swag_from('C:/Users/russk/qrbarik/api/documentation/API.yml')
+@swag_from('api/documentation/API.yml')
 def generate_qr_code():
     info: dict[str, Any] = request.json
     text_to_generate = info.get('text')
@@ -44,7 +44,7 @@ def generate_qr_code():
     return "Await for a 'text' key in JSON request", 400
 
 @app.route('/read', methods=['POST'])
-@swag_from('C:/Users/russk/qrbarik/api/documentation/API.yml')
+@swag_from('api/documentation/API.yml')
 def read_qr_code():
     if 'file' not in request.files:
         return jsonify({'error': 'Await for image file'}), 400
