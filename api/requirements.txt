@@ -4,4 +4,4 @@ numpy==2.0.1
 opencv-python==4.10.0.84
 pillow==10.4.0
 pyzbar==0.1.9
-flasgger=0.9.7.1
+flasgger==0.9.7.1

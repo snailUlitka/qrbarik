@@ -7,4 +7,4 @@
     - macOS/Linux: `source venv/bin/activate`
 1. Run `pip install -U -r requirements.txt`
 1. Wait until all packages are downloaded
-1. Run `app.py`, i.e. `python app.py`
+1. Run `app.py`, i.e. `python app.py` from "/api" (relocate to "cd api")
