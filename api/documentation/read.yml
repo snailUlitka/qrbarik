@@ -1,0 +1,41 @@
+summary: Read QR code
+description: Reads a QR code from the provided image file.
+produces:
+  - application/json
+  - text/html
+consumes:
+  - multipart/form-data
+responses:
+  200:
+    description: QR Code read successfully
+    schema:
+      type: object
+      properties:
+        text:
+          type: array
+          items:
+            type: string
+            description: A URL or a text
+            example: [decoded text]      
+  400:
+    description: Bad request
+    schema:
+      type: object
+      properties:
+      message:
+        type: string
+        example: Await for image file
+  default:
+    description: Unexpected error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: An unexpected error occurred.
+parameters:
+  - name: file
+    in: formData
+    description: The image file containing the QR code
+    required: True
+    type: file
