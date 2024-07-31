@@ -1,5 +1,7 @@
 summary: Generate QR code
 description: Generates a QR code from the provided text
+consumes:
+  - application/json
 produces:
   - application/json
   - text/html

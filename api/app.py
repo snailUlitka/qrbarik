@@ -12,8 +12,7 @@ app = Flask(__name__)
 CORS(app)
 app.config['SWAGGER'] = {
     'title': 'QR Code API',
-    'uiversion': 3,
-    'openapi': '3.0.0',
+    'uiversion': 3
 }
 swagger_config = {
     "headers": [],
@@ -35,7 +34,7 @@ swagger = Swagger(app, config=swagger_config)
 @app.route('/generate', methods=['POST'])  
 @swag_from('documentation/generate.yml')
 def generate_qr_code():
-    info: dict[str, Any] = request.json
+    info: dict[str, Any] = request.get_json()
     text_to_generate = info.get('text')
 
     if isinstance(text_to_generate, str):
