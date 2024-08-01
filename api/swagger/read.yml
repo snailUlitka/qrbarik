@@ -16,15 +16,15 @@ responses:
           items:
             type: string
             description: A URL or a text
-            example: [decoded text]      
+            example: [decoded text]
   400:
     description: Bad request
     schema:
       type: object
       properties:
-      message:
-        type: string
-        example: Await for image file
+        message:
+          type: string
+          example: Await for image file
   default:
     description: Unexpected error
     schema:
