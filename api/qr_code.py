@@ -1,6 +1,11 @@
 import ast
+import math
 
-inputInformation = "!Kapibara !!! 0_0  !Kapibara !!! 0_0 !Kapibara !!! 0_0" 
+from PIL import Image
+
+from PIL import Image, ImageDraw, ImageOps
+
+inputInformation = "!Kapibara !!! 0_0 Kapibara !!! 0_0 Kapibara !!! 0_0" 
 result = []
 result = ''.join(format(ord(x), '08b') for x in inputInformation)
 lenData = len(result)
@@ -36,9 +41,7 @@ def numberVersion(lenBit):
 VERSION_NUMBER = numberVersion(lenData)    
 print('версия')
 print(numberVersion(lenData))
-'''
-ver  = numberVersion(lenData)
-'''
+
 
 Table3_Length_data_quantity_field = {
     '1-9':8, '10-26':16, '27-40':16
@@ -170,7 +173,7 @@ def bloks_translation_from_2_to_10(bloks: list):
          j = 0
          while j<len(bloks[i]):
              j = q+8
-             resultBloks[i].append(str((int(bloks[i][q:j],2))))
+             resultBloks[i].append((int(bloks[i][q:j],2)))
              q = j
     
     return resultBloks
@@ -276,9 +279,42 @@ def create_Bin_correction(bloks: list):
 print("Байты коррекции")
 print(create_Bin_correction(bloks))
 
+def combining_blocks(bloks: list, correction_bloks ):
+     
+    resultList = []
+    bin_current = 0 
 
-                    
-                
+    while bin_current < amountDataInBlock+1:
+        if(bin_current < amountDataInBlock):
+            for blocks_current in range (NUMBER_BLOCK):
+                resultList.append(bloks[blocks_current][bin_current])
+        else:
+            for bin_current in range(NUMBER_BLOCK-int(remainder), NUMBER_BLOCK):
+                 resultList.append(bloks[blocks_current][bin_current])
+
+        bin_current+=1
+
+    bin_current = 0
+    while bin_current < Table5M_Number_CorrectionBytes_per_block[str(VERSION_NUMBER)]:
+        for combining_blocks_current in range (len(correction_bloks)):
+            resultList.append(correction_bloks[combining_blocks_current][bin_current])
+        bin_current+=1
+    return resultList
+
+print("Объедененные блоки")
+#print(combining_blocks(bloks,create_Bin_correction(bloks)))
+
+DATA_QR = combining_blocks(bloks,create_Bin_correction(bloks))
+print(DATA_QR)
+
+def bytes_to_bits(byte_list):
+    """
+    Преобразует список байтов в строку битов.
+    """
+    bits = ''.join(f'{int(byte):08b}' for byte in byte_list)
+    return bits
+DATA_QR = bytes_to_bits(combining_blocks(bloks,create_Bin_correction(bloks)))
+print(bytes_to_bits(combining_blocks(bloks,create_Bin_correction(bloks))))
 
 
 
@@ -286,3 +322,373 @@ print(create_Bin_correction(bloks))
 
 
 
+def calculating_size_image_and_module():
+
+    SIZE_QRCODE = 300
+    size_pixle_in_module = SIZE_QRCODE / (21 + (VERSION_NUMBER - 1)*4)
+
+
+    while((size_pixle_in_module%1 != 0) | (math.sqrt(size_pixle_in_module)%1 != 0)):
+        SIZE_QRCODE += 1
+        size_pixle_in_module = SIZE_QRCODE / (21 + (VERSION_NUMBER - 1)*4)
+    
+    print("Кол-во пикселей в модуле")
+    print(size_pixle_in_module)
+
+    print("Размер QR кода в пикселях")
+    print(SIZE_QRCODE)
+
+    result = []
+    result.append(SIZE_QRCODE)
+    result.append(size_pixle_in_module)
+
+    print(result[0])
+    return(result)
+
+
+# Рассчитываем размер стороны модуля в пикселях
+module_size = int(calculating_size_image_and_module()[0]/ (21 + (VERSION_NUMBER - 1)*4))
+
+# Количество модулей по горизонтали и вертикали
+num_modules = (21 + (VERSION_NUMBER - 1)*4)
+
+
+image = Image.new("RGBA", (calculating_size_image_and_module()[0], calculating_size_image_and_module()[0]), (256, 256, 256, 0))
+draw = ImageDraw.Draw(image)
+
+
+# Функция для рисования модуля
+def draw_module(x, y, color):
+    if color == 'black':
+        color = (0, 0, 0, 255)  # Черный с указанной прозрачностью
+    elif color == 'white':
+        color = (255, 255, 255, 255)  # Белый с указанной прозрачностью
+
+    draw.rectangle(
+        [x * module_size, y * module_size, (x + 1) * module_size - 1, (y + 1) * module_size - 1],
+        fill=color, 
+    )
+
+def generate_qr_search_pattern():
+    # Функция для рисования поискового узора
+    def draw_finder_pattern(x, y, exclude_border):
+    
+        if exclude_border == "LeftTop":
+            for i in range(7):
+                for j in range(7):
+                    draw_module(x + i, y + j, "black")
+            for i in range(5):
+                for j in range(5):
+                    draw_module(x + i + 1 , y + j + 1, "white")
+            for i in range(3):
+                for j in range(3):
+                    draw_module(x + i + 2 , y + j + 2 , "black")
+
+            for i in range(7):
+                draw_module(7 , i, "white")
+            for i in range(8):
+                draw_module(i , 7, "white")
+
+        elif exclude_border =="right":
+
+            for i in range(7):
+                for j in range(7):
+                    draw_module(x - i, y + j, "black")
+            for i in range(5):
+                for j in range(5):
+                    draw_module(x - i - 1, y + j + 1, "white")
+            for i in range(3):
+                for j in range(3):
+                    draw_module(x - i - 2, y + j + 2, "black")
+
+            for i in range(7):
+                draw_module(x - 7 , i, "white")   
+            for i in range(8):
+                draw_module(x - i , 7, "white")
+
+        elif exclude_border =="Left!Top":
+
+            for i in range(7):
+                for j in range(7):
+                    draw_module(x + i, y - j, "black")
+            for i in range(5):
+                for j in range(5):
+                    draw_module(x + i + 1, y - j - 1, "white")
+            for i in range(3):
+                for j in range(3):
+                    draw_module(x + i + 2, y - j - 2, "black")
+
+            for i in range(7):
+                draw_module(7 ,y - i, "white")
+            for i in range(8):
+                draw_module(i , y - 7, "white")
+
+
+
+    draw_finder_pattern(0, 0, exclude_border="LeftTop")  # Верхний левый угол
+
+
+    if num_modules >= 7:
+        draw_finder_pattern(num_modules - 1, 0, exclude_border="right")  # Правый верхний угол
+
+
+    if num_modules >= 7:
+        draw_finder_pattern(0, num_modules - 1, exclude_border="Left!Top")  # Левый нижний угол
+
+
+Table_9_alignment_pattern= {
+    2:[18], 3:[22], 4:[26], 5:[30], 
+    6:[34], 7:[6, 22, 38], 8:[6, 24, 42], 9:[6, 26, 46], 10:[6, 28, 50], 
+    11:[6, 30, 54], 12:[6, 32, 58], 13:[6, 34, 62], 14:[6, 26, 46, 66], 15:[6, 26, 48, 70], 
+    16:[6, 26, 50, 74], 17:[6, 30, 54, 78], 18:[6, 30, 56, 82], 19:[6, 30, 58, 86], 20:[6, 34, 62, 90],
+    21:[6, 28, 50, 72, 94], 22:[6, 26, 50, 74, 98], 23:[6, 30, 54, 78, 102], 24:[6, 28, 54, 80, 106],
+    25:[6, 32, 58, 84, 110], 26:[6, 30, 58, 86, 114], 27:[6, 34, 62, 90, 118], 28:[6, 26, 50, 74, 98, 122], 
+    29:[6, 30, 54, 78, 102, 126], 30:[6, 26, 52, 78, 104, 130], 31:[6, 30, 56, 82, 108, 134], 
+    32:[6, 34, 60, 86, 112, 138], 33:[6, 30, 58, 86, 114, 142], 34:[6, 34, 62, 90, 118, 146], 
+    35:[6, 30, 54, 78, 102, 126, 150], 36:[6, 24, 50, 76, 102, 128, 154], 37:[6, 28, 54, 80, 106, 132, 158], 
+    38:[6, 32, 58, 84, 110, 136, 162], 39:[6, 26, 54, 82, 110, 138, 166], 40:[6, 30, 58, 86, 114, 142, 170]
+}
+
+positions = Table_9_alignment_pattern[VERSION_NUMBER]
+
+def check_empty_modele(x, y):
+    for i in range(x * module_size, (x + 1) * module_size - 1):
+        for j in range(y * module_size, (y + 1) * module_size - 1):
+            # Получаем цвет пикселя
+            pixel = image.getpixel((i, j))
+            # Проверяем, есть ли у изображения альфа-канал
+            if len(pixel) == 4: 
+                # Если хотя бы один пиксель не прозрачен
+                if pixel[3] != 0:
+                    return False
+            else:
+                # Если у изображения нет альфа-канала, оно не может быть прозрачным
+                return False
+    
+    return True
+
+
+def generate_qr_alignment_pattern():
+
+    #выравнивающий узор 5x5 с центром в точке (x, y).
+    def draw_alignment_pattern(x, y):
+    # Наружная черная рамка 5x5
+        for i in range(5):
+            for j in range(5):
+                draw_module(x + i - 2, y + j - 2, "black")
+    # Внутренняя белая рамка 3x3
+        for i in range(3):
+            for j in range(3):
+                draw_module(x - 1 + i , y - 1 + j, "white")        
+    # Центральный черный модуль 1x1
+        draw_module(x, y, "black")
+
+    #координаты центров выравнивающих узоров
+    positions = Table_9_alignment_pattern[VERSION_NUMBER]
+
+    # Исключает конфликт с поисковыми узорами для версий больше 6
+    if VERSION_NUMBER > 6:
+         exclude_positions = {(positions[0], positions[0]), (positions[0], positions[-1]), (positions[-1], positions[0])}
+    else:
+        exclude_positions = set()
+
+    # Рисует выравнивающие узоры на заданных узлах сетки
+    for i in positions:
+        for j in positions:
+            if (i, j) not in exclude_positions:
+                draw_alignment_pattern(i, j)
+
+def is_in_alignment_pattern(x, y):
+
+    for ax in positions:
+        for ay in positions:
+            # Пропускает узоры, которые пересекаются с поисковыми (верхний левый, верхний правый и нижний левый)
+            if (ax == 6 and (ay == 6 or ay == num_modules - 7)) or (ay == 6 and ax == num_modules - 7):
+                    continue
+
+            # Находится ли точка внутри выравнивающего узора?
+            if ax - 2 <= x <= ax + 2 and ay - 2 <= y <= ay + 2:
+                return True
+    return False
+    
+def generate_sync_bands():
+
+    x = 8
+    y = 6
+    stripe_color = 'black'
+    while x < num_modules - 7 :
+        if not is_in_alignment_pattern(x, y):
+            draw_module(x, y, stripe_color)
+        if stripe_color == 'black':
+            stripe_color = 'white'
+        else: 
+            stripe_color = 'black'
+        x += 1
+        
+    x = 6
+    y = 8
+    stripe_color = 'black'
+    while y < num_modules - 7 :
+        if not is_in_alignment_pattern(x, y):
+            draw_module(x, y, stripe_color)
+        if stripe_color == 'black':
+            stripe_color = 'white'
+        else: 
+            stripe_color = 'black'
+        y += 1
+
+TAble10_version_codes = {
+    7: "000010011110100110",
+    8: "010001011100111000",
+    9: "110111011000000100",
+    10: "101001111110000000",
+    11: "001111111010111100",
+    12: "001101100100011010",
+    13: "101011100000100110",
+    14: "110101000110100010",
+    15: "010011000010011110",
+    16: "011100010001011100",
+    17: "111010010101100000",
+    18: "100100110011100100",
+    19: "000010110111011000",
+    20: "000000101001111110",
+    21: "100110101101000010",
+    22: "111000001011000110",
+    23: "011110001111111010",
+    24: "001101001101100100",
+    25: "101011001001011000",
+    26: "110101101111011100",
+    27: "010011101011100000",
+    28: "010001110101000110",
+    29: "110111110001111010",
+    30: "101001010111111110",
+    31: "001111010011000010",
+    32: "101000011000101101",
+    33: "001110011100010001",
+    34: "010000111010010101",
+    35: "110110111110101001",
+    36: "110100100000001111",
+    37: "010010100100110011",
+    38: "001100000010110111",
+    39: "101010000110001011",
+    40: "111001000100010101"
+}
+
+def draw_version_code(version_code, offset_x, offset_y):
+
+    for i in range(len(version_code)):
+        color = 'black' if version_code[i] == '1' else 'white'
+        if (i < 6):
+            draw_module(offset_x, offset_y + i, color)
+            draw_module(offset_y + i, offset_x, color)
+        elif(6 <= i < 12):
+            draw_module(offset_x+1, offset_y + i - 6, color)
+            draw_module(offset_y + i - 6, offset_x + 1, color)
+        else:
+            draw_module(offset_x+2, offset_y + i - 12, color)
+            draw_module(offset_y + i - 12, offset_x + 2, color)
+
+# Пример вызова функции
+generate_qr_search_pattern()
+generate_qr_alignment_pattern()
+generate_sync_bands()
+if VERSION_NUMBER >=7:
+   draw_version_code(TAble10_version_codes[VERSION_NUMBER], num_modules - 11, 0)
+
+def masking(x, y, color):
+    mask_3 = (x + y)%3
+    if(mask_3 == 0):
+        if(color == 'white'):
+            color = 'black'
+        else:
+            color = 'white'
+    return color
+
+def mask_code_and_correction_level():
+
+    code = '111100010011101'
+    color = 'black'
+    j = 0
+    draw_module(8,num_modules - 8, color)
+    for i in range(7):
+
+        if code[i] == '0':
+            color = 'white'
+        else:
+            color = 'black'
+        draw_module(8,num_modules - 1 - i, color)
+
+        if j == 6:
+            j += 1  
+
+        draw_module(j, 8, color)
+        j += 1 
+
+    j = 0
+    for i in range(7,len(code)):
+
+        if code[i] == '0':
+            color = 'white'
+        else:
+            color = 'black'
+        draw_module(num_modules - 8 + i - 7,8, color)    
+
+        if j == 2:
+            j += 1 
+        draw_module(8, 8 - j, color)
+        j += 1 
+        
+
+def fill_qr_data():
+    color: str
+    data_index = 0
+    for col in range(num_modules - 1, -1, -2):    
+        #В пределах одного столбика чередуем движение: снизу вверх, сверху вниз
+        for row in range(num_modules - 1, -1, -1):
+            for x_offset in range(2):
+                x = col - x_offset
+                y = row
+                #Если модуль свободен, заполняем его данными
+                if check_empty_modele(x, y):
+                    if data_index < len(DATA_QR):
+                        
+                        if int(DATA_QR[data_index]) == 0:
+                            color = 'white'
+                        else:
+                            color = 'black'
+                        color = masking(x, y, color)
+                        draw_module(x, y, color)
+                        data_index += 1
+
+                    else:
+                        color = 'white'
+                        color = masking(x,y,color)
+                        draw_module(x,y, color) # Если данные закончились, заполняем 0
+        #Двигаемся вверх
+        for row in range(num_modules):
+            for x_offset in range(2):
+                x = col - x_offset
+                y = row
+
+                if check_empty_modele(x, y):
+                    if data_index < len(DATA_QR):
+                        if int(DATA_QR[data_index]) == 0:
+                            color = 'white'
+                        else:
+                            color = 'black'
+                        color = masking(x,y,color)
+                        draw_module(x,y, color)
+                        data_index += 1
+                    else:
+                        color = 'white'
+                        color = masking(x,y,color)
+                        draw_module(x,y, color) 
+
+mask_code_and_correction_level()
+fill_qr_data()
+
+# Сохраняем изображение
+image = ImageOps.expand(image, border=module_size, fill='white')
+
+image.save("finder_pattern.png")
+image.show()
