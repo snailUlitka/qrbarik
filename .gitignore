@@ -130,6 +130,9 @@ ENV/
 env.bak/
 venv.bak/
 
+# PyRight LSP
+pyrightconfig.json
+
 # Spyder project settings
 .spyderproject
 .spyproject

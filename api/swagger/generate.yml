@@ -1,0 +1,52 @@
+summary: Generate QR code
+description: Generates a QR code from the provided text
+consumes:
+  - application/json
+produces:
+  - application/json
+  - text/html
+responses:
+  200:
+    description: OK. Successfully generated QR code
+    schema:
+      type: object
+      properties:
+        image:
+          type: string
+          format: byte
+  400:
+    description: Bad request. Await for a 'text' key in JSON request or invalid value for 'text' key
+    schema:
+      type: "object"
+      properties:
+        error:
+          type: "string"
+          description: >
+            error:
+             * Await for a 'text' key in JSON request!
+             * Invalid value for 'text' key!
+             * Invalid value for 'text' key! .An empty string is not allowed
+          enum:
+          - "Await for a 'text' key in JSON request!"
+          - "Invalid value for 'text' key!"
+          - "Invalid value for 'text' key! .An empty string is not allowed"
+          default: "Await for a 'text' key in JSON request!"
+  default:
+    description: Unexpected error
+    schema:
+      type: object
+      properties:
+        error:
+          type: string
+          example: An unexpected error occurred.
+parameters:
+  - name: text
+    in: body
+    description: JSON object with text to generate QR code
+    required: True
+    schema:
+      type: object
+      properties:
+        text:
+          type: string
+          example: text for generating QR-code
