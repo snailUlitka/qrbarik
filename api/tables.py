@@ -1,5 +1,5 @@
 # Уровень коррекции - M, key - номер версии
-max_bits = {
+MAX_BITS = {
     1: 128,
     2: 224,
     3: 352,
@@ -42,7 +42,7 @@ max_bits = {
     40: 18672,
 }
 
-blocks_number = {
+BLOCKS_NUMBER = {
     1: 1,
     2: 1,
     3: 1,
@@ -85,7 +85,7 @@ blocks_number = {
     40: 49,
 }
 
-correction_bytes_per_block = {   # Кол-во байтов коррекции на 1 блок
+CORRECTION_BYTES_PER_BLOCK = {   # Кол-во байтов коррекции на 1 блок
     1: 10,
     2: 16,
     3: 26,
@@ -128,7 +128,7 @@ correction_bytes_per_block = {   # Кол-во байтов коррекции �
     40: 28,
 }
 
-generating_polynomials = {
+GENERATING_POLYNOMIALS = {
     10: [251, 67, 46, 61, 118, 70, 64, 94, 32, 45],
     16: [120, 104, 107, 109, 102, 161, 76, 3, 91, 191, 147, 169, 182, 194, 225, 120],
     18: [
@@ -293,7 +293,7 @@ generating_polynomials = {
     ],
 }
 
-galois_fields = {
+GALOISE_FIELDS = {
     0: 1,
     1: 2,
     2: 4,
@@ -553,7 +553,7 @@ galois_fields = {
 }
 
 
-inverse_galoise_fields = {
+INVERSE_GALOISE_FIELDS = {
     1: 0,
     2: 1,
     3: 25,
@@ -811,7 +811,7 @@ inverse_galoise_fields = {
     255: 175,
 }
 
-alignment_pattern = {
+ALIGNMENT_PATTERN = {
     2: [18],
     3: [22],
     4: [26],
@@ -853,7 +853,7 @@ alignment_pattern = {
     40: [6, 30, 58, 86, 114, 142, 170],
 }
 
-version_codes = {
+VERSION_CODES = {
     7: "000010011110100110",
     8: "010001011100111000",
     9: "110111011000000100",
@@ -890,4 +890,4 @@ version_codes = {
     40: "111001000100010101",
 }
 
-field_length = {"1-9": 8, "10-26": 16, "27-40": 16}   # Длина поля кол-ва данных
+FIELD_LENGTH = {"1-9": 8, "10-26": 16, "27-40": 16}   # Длина поля кол-ва данных
