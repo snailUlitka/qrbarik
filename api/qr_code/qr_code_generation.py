@@ -1,7 +1,7 @@
 import tables
 import math
 
-from PIL import Image
+from PIL import Image, ImageOps
 from PIL import ImageDraw
 from typing import Literal
 
@@ -427,9 +427,9 @@ class CodeGeneration:
 
     @staticmethod
     def masking(x: int, y: int, color: str) -> str:
-        mask_3 = (x + y) % 3
+        mask = (x/3 + y/2) % 2
 
-        if mask_3 == 0:
+        if mask == 0:
             color = "black" if color == "white" else "white"
         return color
 
@@ -509,15 +509,26 @@ class CodeGeneration:
         modules_number = self.get_modules_number()
         data_index = 0
 
-        for col in range(modules_number - 1, -1, -2):
-            for row in range(modules_number - 1, -1, -1):
+        #cols = list(range(modules_number - 1, -1, -2))
+        col = modules_number - 1
+        direction = -1
+        i = 1
+
+        while col >= 0:
+            if col == 6:
+                col -= 1
+                continue
+
+            start = 0 if direction == 1 else modules_number - 1
+            end = modules_number if direction == 1 else -1
+
+            for row in range(start, end, direction):
                 for x_offset in range(2):
                     x = col - x_offset
                     y = row
-                    
+
                     if self.is_empty_module(module_size, image, x, y):
                         if data_index < len(qr_data):
-
                             color = "white" if int(qr_data[data_index]) == 0 else "black"
                             color = self.masking(x, y, color)
                             self.module_drawing(module_size, image, x, y, color)
@@ -528,22 +539,58 @@ class CodeGeneration:
                             color = self.masking(x, y, color)
                             self.module_drawing(
                                 module_size, image, x, y, color
-                            )  # Если данные закончились, заполняем 0
-            # Двигаемся вверх
-            for row in range(modules_number):
-                for x_offset in range(2):
-                    x = col - x_offset
-                    y = row
+                            )
+                    #     i += 1
 
-                    if self.is_empty_module(module_size, image, x, y):
-                        if data_index < len(qr_data):
-                            color = "white" if int(qr_data[data_index]) == 0 else "black"
-                            color = self.masking(x, y, color)
-                            self.module_drawing(module_size, image, x, y, color)
-                            data_index += 1
-                        else:
-                            color = "white"
-                            color = self.masking(x, y, color)
-                            self.module_drawing(module_size, image, x, y, color)
+                    # if i == 10000:
+                    #     image = ImageOps.expand(image, border=4 * module_size, fill="white")
+                    #     image.save("../Sources/qr_code.png")
+                    #     image.show()
+                    #     exit(0)
+
+            direction = -direction
+            col -= 2
+
+
+
+        # for col in range(modules_number - 1, -1, -2):
+        #     for row in range(modules_number - 1, -1, -1):
+        #         for x_offset in range(2):
+        #             x = col - x_offset
+        #             y = row
+                    
+        #             if self.is_empty_module(module_size, image, x, y):
+        #                 if data_index < len(qr_data):
+
+        #                     color = "white" if int(qr_data[data_index]) == 0 else "black"
+        #                     color = self.masking(x, y, color)
+        #                     self.module_drawing(module_size, image, x, y, color)
+        #                     data_index += 1
+
+        #                 else:
+        #                     color = "white"
+        #                     color = self.masking(x, y, color)
+        #                     self.module_drawing(
+        #                         module_size, image, x, y, color
+        #                     )  # Если данные закончились, заполняем 0
+        #                     image = ImageOps.expand(image, border=4 * module_size, fill="white")
+        #                     image.save("../Sources/qr_code.png")
+        #                     image.show()
+        #     # Двигаемся вверх
+        #     for row in range(modules_number):
+        #         for x_offset in range(2):
+        #             x = col - x_offset
+        #             y = row
+
+        #             if self.is_empty_module(module_size, image, x, y):
+        #                 if data_index < len(qr_data):
+        #                     color = "white" if int(qr_data[data_index]) == 0 else "black"
+        #                     color = self.masking(x, y, color)
+        #                     self.module_drawing(module_size, image, x, y, color)
+        #                     data_index += 1
+        #                 else:
+        #                     color = "white"
+        #                     color = self.masking(x, y, color)
+        #                     self.module_drawing(module_size, image, x, y, color)
 
 
