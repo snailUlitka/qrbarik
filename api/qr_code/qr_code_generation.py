@@ -3,6 +3,7 @@ import math
 
 from PIL import Image
 from PIL import ImageDraw
+from typing import Literal
 
 
 class CodeGeneration:
@@ -40,12 +41,12 @@ class CodeGeneration:
             return tables.FIELD_LENGTH["10-26"]
         return tables.FIELD_LENGTH["27-40"]
 
-    @classmethod # MISHKA: Не уверен что здесь нужен метод класса, может просто статический?
-    def service_fields(cls, input: str) -> tuple[int, str]:
+    @staticmethod # MISHKA: Не уверен что здесь нужен метод класса, может просто статический?
+    def service_fields(input: str) -> tuple[int, str]:
         bin_unicode_input = "".join(
             format(ord(ch), "08b") for ch in input
         )
-        version_number = cls.define_version(len(bin_unicode_input))
+        version_number = CodeGeneration.define_version(len(bin_unicode_input))
         unicode_len_without_prefix = format(
             len(input), "08b" if version_number < 10 else "016b"
         )
@@ -59,7 +60,7 @@ class CodeGeneration:
                 )
                 res = f"0100{unicode_len_without_prefix}{bin_unicode_input}"
 
-        res = cls.bit_seq_null_filling(
+        res = CodeGeneration.bit_seq_null_filling(
             version_number, res
         )
 
@@ -84,58 +85,58 @@ class CodeGeneration:
 
         return bit_sequence
 
-    def bin_blocks_filling(self, res: str) -> tuple[list[str], int, int]:
+    def fill_blocks(self, bit_sequence: str) -> tuple[list[str], int, int]:
         binary_blocks: list[str] = []
         
         blocks_num = tables.BLOCKS_NUMBER[self.version_number]
-        bytes_amount = len(res) // 8
-        data_per_block = bytes_amount // blocks_num
-        remain = bytes_amount % blocks_num
+        bytes_amount = len(bit_sequence) // 8
+        bytes_per_block = bytes_amount // blocks_num
+        remainder_bytes = bytes_amount % blocks_num
         
         q = 0
-        j = data_per_block * 8
+        j = bytes_per_block * 8
 
-        for i in range(blocks_num - remain):
-
-            binary_blocks.append(res[q:j])
+        for _ in range(blocks_num - remainder_bytes):
+            binary_blocks.append(bit_sequence[q:j])
             q = j
-            j += data_per_block * 8
+            j += bytes_per_block * 8
 
-        if remain != 0:
-            q = data_per_block * (blocks_num - remain) * 8
+        if remainder_bytes != 0:
+            q = bytes_per_block * (blocks_num - remainder_bytes) * 8
             j += 8
 
-            for i in range(remain):
-                binary_blocks.append(res[q:j])
+            for _ in range(remainder_bytes):
+                binary_blocks.append(bit_sequence[q:j])
                 q = j
-                j += data_per_block * 8 + 8
+                j += bytes_per_block * 8 + 8
 
-        return binary_blocks, remain, data_per_block
+        return binary_blocks, remainder_bytes, bytes_per_block
 
     @staticmethod
-    def blocks_bin2dec_translation(blocks: list[str]) -> list[list[int]]:
-        result_blocks: list = list()
+    def translate_blocks_to_dec(bin_blocks: list[str]) -> list[list[int]]:
+        result_blocks: list = []
 
-        for i in range(len(blocks)):
-            result_blocks.append([])
+        for i in range(len(bin_blocks)):
+            decimal_block = []
 
-        for i in range(len(blocks)):
             q, j = 0, 0
 
-            while j < len(blocks[i]):
+            while j < len(bin_blocks[i]):
                 q = j
                 j += 8
-                result_blocks[i].append(int(blocks[i][q:j], 2))
+
+                decimal_block.append(int(bin_blocks[i][q:j], 2))
+            result_blocks.append(decimal_block)
 
         return result_blocks
 
-    def bin_correction_creating(self, blocks: list[list[int]]) -> list[list[int]]:
+    def create_error_correction(self, blocks: list[list[int]]) -> list[list[int]]:
         bin_correction_number = tables.CORRECTION_BYTES_PER_BLOCK[self.version_number]
         polynomial = tables.GENERATING_POLYNOMIALS[bin_correction_number]
-        list_correction: list = []
+        correction_list: list = []
         
         for i in range(len(blocks)):
-            list_correction_for_block: list[int] = [0] * max( # MISHKA: Сделал list -> list[int], более точное указание типов полезно
+            list_correction_for_block: list[int] = [0] * max(
                 len(blocks[i]), bin_correction_number
             )
             for j in range(len(blocks[i])):
@@ -143,12 +144,12 @@ class CodeGeneration:
             q = 0
             
             while q < len(list_correction_for_block):
-                a = list_correction_for_block[q] # MISHKA: просто а в качестве названия это сильно
+                correction_item = list_correction_for_block[q]
                 list_correction_for_block.pop(q)
                 list_correction_for_block.append(0)
                 
-                if a != 0: # MISHKA: убрал преобразование int(a) -> a, оно здесь разве нужно?
-                    b = tables.INVERSE_GALOISE_FIELDS[a]
+                if correction_item != 0:
+                    b = tables.INVERSE_GALOISE_FIELDS[correction_item]
                     
                     for k in range(bin_correction_number):
                         c = polynomial[k] + b
@@ -160,60 +161,66 @@ class CodeGeneration:
                             ^ int(list_correction_for_block[k])
                         )
                 q += 1
-            list_correction.append(list_correction_for_block)
-        return list_correction
+            correction_list.append(list_correction_for_block)
+        return correction_list
 
-    def blocks_combination(
+    def combinate_blocks(
         self,
-        blocks: list[str],
-        correction_blocks: list[str],
+        blocks: list[list[int]],
+        correction_blocks: list[list[int]],
         remainder,
-        data_per_block,
-    ) -> list[str]:
+        bytes_per_block,
+    ) -> list[int]:
         blocks_num = tables.BLOCKS_NUMBER[self.version_number]
-        result_list: list[str] = []
+        result_list: list[int] = []
 
-        current_bin = 0
+        current_byte = 0
         
-        while (current_bin <= data_per_block):   # NOTE: <= data_per_block + 1 ?
-            if current_bin < data_per_block:
-                for current_block in range(blocks_num):
-                    result_list.append(blocks[current_block][current_bin])
+        while (current_byte <= bytes_per_block):
+            if current_byte < bytes_per_block:
+                for block in range(blocks_num):
+                    result_list.append(blocks[block][current_byte])
             else:
-                for current_block in range(blocks_num - remainder, blocks_num):   # NOTE: for current_block
-                    result_list.append(blocks[current_block][current_bin])
-            current_bin += 1
+                for block in range(blocks_num - remainder, blocks_num):
+                    result_list.append(blocks[block][current_byte])
+
+            current_byte += 1
         
-        current_bin = 0
+        current_byte = 0
         bytes_per_block = tables.CORRECTION_BYTES_PER_BLOCK[self.version_number]
         
-        while (current_bin < bytes_per_block):
-            for current_comb_block in range(len(correction_blocks)):
+        while (current_byte < bytes_per_block):
+            for block in range(len(correction_blocks)):
                 result_list.append(
-                    correction_blocks[current_comb_block][current_bin]
+                    correction_blocks[block][current_byte]
                 )
-            current_bin += 1
+            current_byte += 1
 
         return result_list
 
     @staticmethod
-    def bytes2bits(byte_list: list[str]) -> str:
-        return "".join(f"{int(byte):08b}" for byte in byte_list)
+    def bytes2bits(bytes_list: list[int]) -> str:
+        return "".join(f"{byte:08b}" for byte in bytes_list)
 
-    def module_size_calculation(self, qr_code_size=300) -> tuple[int, int]:
+    def calculate_module_size(self, qr_code_size=300) -> tuple[int, int]:
         if self.version_number is not None:
-            modules_count = 21 + (self.version_number - 1) * 4
+            modules_num = 21 + (self.version_number - 1) * 4
 
-            while qr_code_size % modules_count != 0:
+            while qr_code_size % modules_num != 0:
                 qr_code_size += 1
-            pixels_num_per_module = qr_code_size // modules_count
+            pixels_num_per_module = qr_code_size // modules_num
 
         return qr_code_size, pixels_num_per_module
 
     @staticmethod
     def module_drawing(
-        module_size: int, image: Image.Image, x: int, y: int, color: str
+        module_size: int,
+        image: Image.Image,
+        x: int,
+        y: int,
+        color: str
     ) -> None:
+        
         if image is not None:
             draw = ImageDraw.Draw(image, "RGBA")
 
@@ -232,69 +239,78 @@ class CodeGeneration:
     def get_modules_number(self) -> int:
         return 21 + (self.version_number - 1) * 4
 
-    def search_pattern_generation(self, image: Image.Image, module_size) -> None:
+    def gen_search_pattern(self, image: Image.Image, module_size: int) -> None:
         modules_number = self.get_modules_number()
 
-        def search_pattern_drawing(x: int, y: int, exclude_border: str) -> None:
-            if exclude_border == "TopLeft":
-                for i in range(7):
-                    for j in range(7):
-                        self.module_drawing(module_size, image, x + i, y + j, color="black")
-                for i in range(5):
-                    for j in range(5):
-                        self.module_drawing(module_size, image, x + i + 1, y + j + 1, "white")
-                for i in range(3):
-                    for j in range(3):
-                        self.module_drawing(module_size, image, x + i + 2, y + j + 2, "black")
-                for i in range(7):
-                    self.module_drawing(module_size, image, 7, i, "white")
-                for i in range(8):
-                    self.module_drawing(module_size, image, i, 7, "white")
-            
-            elif exclude_border == "TopRight":
-                for i in range(7):
-                    for j in range(7):
-                        self.module_drawing(module_size, image, x - i, y + j, "black")
-                for i in range(5):
-                    for j in range(5):
-                        self.module_drawing(module_size, image, x - i - 1, y + j + 1, "white")
-                for i in range(3):
-                    for j in range(3):
-                        self.module_drawing(module_size, image, x - i - 2, y + j + 2, "black")
-                for i in range(7):
-                    self.module_drawing(module_size, image, x - 7, i, "white")
-                for i in range(8):
-                    self.module_drawing(module_size, image, x - i, 7, "white")
-            
-            elif exclude_border == "BottomLeft":
-                for i in range(7):
-                    for j in range(7):
-                        self.module_drawing(module_size, image, x + i, y - j, "black")
-                for i in range(5):
-                    for j in range(5):
-                        self.module_drawing(module_size, image, x + i + 1, y - j - 1, "white")
-                for i in range(3):
-                    for j in range(3):
-                        self.module_drawing(module_size, image, x + i + 2, y - j - 2, "black")
-                for i in range(7):
-                    self.module_drawing(module_size, image, 7, y - i, "white")
-                for i in range(8):
-                    self.module_drawing(module_size, image, i, y - 7, "white")
+        def draw_search_pattern(
+                x: int,
+                y: int,
+                exclude_border: Literal["TopLeft", "TopRight", "BottomLeft"]
+            ) -> None:
 
-        search_pattern_drawing(0, 0, exclude_border="TopLeft")
+            match exclude_border:
+                case "TopLeft":
+                    for i in range(7):
+                        for j in range(7):
+                            self.module_drawing(module_size, image, x + i, y + j, color="black")
+                    for i in range(5):
+                        for j in range(5):
+                            self.module_drawing(module_size, image, x + i + 1, y + j + 1, "white")
+                    for i in range(3):
+                        for j in range(3):
+                            self.module_drawing(module_size, image, x + i + 2, y + j + 2, "black")
+                    for i in range(7):
+                        self.module_drawing(module_size, image, 7, i, "white")
+                    for i in range(8):
+                        self.module_drawing(module_size, image, i, 7, "white")
+            
+                case "TopRight":
+                    for i in range(7):
+                        for j in range(7):
+                            self.module_drawing(module_size, image, x - i, y + j, "black")
+                    for i in range(5):
+                        for j in range(5):
+                            self.module_drawing(module_size, image, x - i - 1, y + j + 1, "white")
+                    for i in range(3):
+                        for j in range(3):
+                            self.module_drawing(module_size, image, x - i - 2, y + j + 2, "black")
+                    for i in range(7):
+                        self.module_drawing(module_size, image, x - 7, i, "white")
+                    for i in range(8):
+                        self.module_drawing(module_size, image, x - i, 7, "white")
+            
+                case "BottomLeft":
+                    for i in range(7):
+                        for j in range(7):
+                            self.module_drawing(module_size, image, x + i, y - j, "black")
+                    for i in range(5):
+                        for j in range(5):
+                            self.module_drawing(module_size, image, x + i + 1, y - j - 1, "white")
+                    for i in range(3):
+                        for j in range(3):
+                            self.module_drawing(module_size, image, x + i + 2, y - j - 2, "black")
+                    for i in range(7):
+                        self.module_drawing(module_size, image, 7, y - i, "white")
+                    for i in range(8):
+                        self.module_drawing(module_size, image, i, y - 7, "white")
+
+        draw_search_pattern(0, 0, exclude_border="TopLeft")
         
         if modules_number >= 7:
-            search_pattern_drawing(modules_number - 1, 0, exclude_border="TopRight")
-            search_pattern_drawing(0, modules_number - 1, exclude_border="BottomLeft")
+            draw_search_pattern(modules_number - 1, 0, exclude_border="TopRight")
+            draw_search_pattern(0, modules_number - 1, exclude_border="BottomLeft")
 
-
-    @classmethod # MISHKA: Аналогично не думаю что здесь нужен classmethod
     def alignment_pattern_drawing(
-        cls, module_size: int, image: Image.Image, x: int, y: int
+        self,
+        module_size: int,
+        image: Image.Image,
+        x: int,
+        y: int
     ) -> None:
+        
         for i in range(5):
             for j in range(5):
-                cls.module_drawing(
+                self.module_drawing(
                     module_size, 
                     image, 
                     x + i - 2, 
@@ -304,11 +320,11 @@ class CodeGeneration:
 
         for i in range(3):
             for j in range(3):
-                cls.module_drawing(module_size, image, x - 1 + i, y - 1 + j, "white")
+                self.module_drawing(module_size, image, x - 1 + i, y - 1 + j, "white")
 
-        cls.module_drawing(module_size, image, x, y, "black")
+        self.module_drawing(module_size, image, x, y, "black")
 
-    def alignment_pattern_generation(self, image: Image.Image, module_size) -> None:
+    def gen_alignment_pattern(self, image: Image.Image, module_size) -> None:
         positions = tables.ALIGNMENT_PATTERN[self.version_number]
         # Исключает конфликт с поисковыми узорами для версий больше 6
         if self.version_number > 6:
@@ -346,7 +362,7 @@ class CodeGeneration:
                     return True
         return False
 
-    def sync_bands_generation(self, image: Image.Image, module_size) -> None:
+    def gen_sync_bands(self, image: Image.Image, module_size) -> None:
         modules_number = self.get_modules_number()
         x = 8
         y = 6
@@ -376,9 +392,14 @@ class CodeGeneration:
                 stripe_color = "black"
             y += 1
 
-    def code_version_drawing(
-        self, offset_x: int, offset_y: int, image: Image.Image, module_size
+    def draw_code_version(
+        self,
+        offset_x: int,
+        offset_y: int,
+        image: Image.Image,
+        module_size
     ) -> None:
+        
         version_code = tables.VERSION_CODES[self.version_number]
 
         for i in range(len(version_code)):
@@ -412,15 +433,15 @@ class CodeGeneration:
             color = "black" if color == "white" else "white"
         return color
 
-    def mask_code_and_correction_level(self, image: Image.Image, module_size) -> None:
+    def draw_mask_code(self, mask: int, image: Image.Image, module_size) -> None:
         modules_number = self.get_modules_number()
-        code = "111100010011101"
+        code = str(tables.MASK_CODE[mask])
         j = 0
 
         self.module_drawing(module_size, image, 8, modules_number - 8, "black")
 
         for i in range(7):
-            color = "white" if code[i] == 0 else "black"
+            color = "white" if code[i] == "0" else "black"
             self.module_drawing(module_size, image, 8, modules_number - 1 - i, color)
 
             if j == 6:
@@ -433,7 +454,7 @@ class CodeGeneration:
 
         for i in range(7, len(code)):
 
-            color = "white" if code[i] == 0 else "black"
+            color = "white" if code[i] == "0" else "black"
             
             self.module_drawing(
                 module_size, image, modules_number - 8 + i - 7, 8, color
@@ -484,7 +505,7 @@ class CodeGeneration:
                         return False
         return True
     
-    def qr_data_filling(self, image: Image.Image, qr_data, module_size) -> None:
+    def fill_qr_data(self, image: Image.Image, qr_data, module_size) -> None:
         modules_number = self.get_modules_number()
         data_index = 0
 
