@@ -203,17 +203,11 @@ class CodeGeneration:
 
     def module_size_calculation(self, qr_code_size=300) -> tuple[int, int]:
         if self.version_number is not None:
-            pixels_num_per_module = qr_code_size / (
-                21 + (self.version_number - 1) * 4
-            )
+            modules_count = 21 + (self.version_number - 1) * 4
 
-            while (pixels_num_per_module % 1 != 0) | (
-                math.sqrt(pixels_num_per_module) % 1 != 0
-            ):
+            while qr_code_size % modules_count != 0:
                 qr_code_size += 1
-                pixels_num_per_module = int(
-                    qr_code_size / (21 + (self.version_number - 1) * 4)
-                )
+            pixels_num_per_module = qr_code_size // modules_count
 
         return qr_code_size, pixels_num_per_module
 

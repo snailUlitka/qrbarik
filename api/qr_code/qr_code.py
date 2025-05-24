@@ -37,5 +37,5 @@ qr_code.mask_code_and_correction_level(image, module_size)
 qr_code.qr_data_filling(image, qr_data, module_size)
 
 image = ImageOps.expand(image, border=4 * module_size, fill="white")
-image.save("./api/qr_code.png")
+image.save("../Sources/qr_code.png")
 image.show()
