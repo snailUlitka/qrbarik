@@ -45,10 +45,9 @@ class CodeGeneration:
         bin_unicode_input = "".join(
             format(ord(ch), "08b") for ch in input
         )
-        byte_unicode_length = len(bin_unicode_input)
         version_number = cls.define_version(len(bin_unicode_input))
         unicode_len_without_prefix = format(
-            byte_unicode_length, "08b" if version_number < 10 else "016b"
+            len(input), "08b" if version_number < 10 else "016b"
         )
         res = f"0100{unicode_len_without_prefix}{bin_unicode_input}"
 
@@ -56,7 +55,7 @@ class CodeGeneration:
             while len(res) > tables.MAX_BITS[version_number]:
                 version_number += 1
                 unicode_len_without_prefix = format(
-                    byte_unicode_length, "08b" if version_number < 10 else "016b"
+                    len(input), "08b" if version_number < 10 else "016b"
                 )
                 res = f"0100{unicode_len_without_prefix}{bin_unicode_input}"
 
