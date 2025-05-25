@@ -41,10 +41,10 @@ qr_code.gen_sync_bands(image, module_size)
 if qr_code.version_number > 6:
     qr_code.draw_code_version(qr_code.get_modules_number() - 11, 0, image, module_size)
 
-mask = 4
+mask = 3
 
 qr_code.draw_mask_code(mask, image, module_size)
-qr_code.fill_qr_data(image, qr_data, module_size)
+qr_code.fill_qr_data(image, qr_data, module_size, mask)
 
 image = ImageOps.expand(image, border=4 * module_size, fill="white")
 image.save("../Sources/qr_code.png")

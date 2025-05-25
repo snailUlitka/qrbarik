@@ -421,10 +421,22 @@ class CodeGeneration:
                 )
 
     @staticmethod
-    def masking(x: int, y: int, color: str) -> str:
-        mask = (x/3 + y/2) % 2
+    def apply_mask(x: int, y: int, mask_num: int):
+        masks = {
+            0: (x + y) % 2,
+            1: y % 2,
+            2: x % 3,
+            3: (x + y) % 3,
+            4: (x / 3 + y / 2) % 2,
+            5: (x * y) % 2 + (x * y) % 3,
+            6: ((x * y) % 2 + (x * y) % 3) % 2,
+            7: ((x * y) % 3 + (x + y) % 2) % 2,
+        }
+        return masks[mask_num]
 
-        if mask == 0:
+    @staticmethod
+    def masking(x: int, y: int, mask_num: int, color: str) -> str:
+        if CodeGeneration.apply_mask(x, y, mask_num) == 0:
             color = ~color
         return color
 
@@ -500,7 +512,7 @@ class CodeGeneration:
                         return False
         return True
     
-    def fill_qr_data(self, image: Image.Image, qr_data: str, module_size) -> None:
+    def fill_qr_data(self, image: Image.Image, qr_data: str, module_size, mask_num) -> None:
         modules_number = self.get_modules_number()
         data_index = 0
 
@@ -523,13 +535,13 @@ class CodeGeneration:
                     if self.is_empty_module(module_size, image, x, y):
                         if data_index < len(qr_data):
                             color = Color.WHITE if qr_data[data_index] == "0" else Color.BLACK
-                            color = self.masking(x, y, color)
+                            color = self.masking(x, y, mask_num, color)
                             self.module_drawing(module_size, image, x, y, color)
                             data_index += 1
 
                         else:
                             color = Color.WHITE
-                            color = self.masking(x, y, color)
+                            color = self.masking(x, y, mask_num, color)
                             self.module_drawing(
                                 module_size, image, x, y, color
                             )
