@@ -3,7 +3,6 @@ import tables
 from enums import Color, Border
 from PIL import ImageDraw
 from PIL import Image, ImageOps
-from typing import Literal
 
 
 class CodeGeneration:
@@ -41,7 +40,7 @@ class CodeGeneration:
             return tables.FIELD_LENGTH["10-26"]
         return tables.FIELD_LENGTH["27-40"]
 
-    @staticmethod # MISHKA: Не уверен что здесь нужен метод класса, может просто статический?
+    @staticmethod
     def service_fields(input: str) -> tuple[int, str]:
         bin_unicode_input = "".join(
             format(ord(ch), "08b") for ch in input
