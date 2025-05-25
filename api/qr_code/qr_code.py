@@ -6,7 +6,7 @@ from PIL import Image, ImageOps
 # NOTE: utf-8 is recommended for encoding
 # TODO: add H-level for adding an image on QR-code 
 
-input_info = "K"
+input_info = "Kapibara" * 100
 version_number, res = CodeGeneration.service_fields(input_info)
 qr_code = CodeGeneration(version_number)
 binary_blocks, remain, bytes_per_block = qr_code.fill_blocks(res)

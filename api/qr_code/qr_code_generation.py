@@ -1,8 +1,8 @@
 import tables
-import math
 
-from PIL import Image, ImageOps
+from enums import Color, Border
 from PIL import ImageDraw
+from PIL import Image, ImageOps
 from typing import Literal
 
 
@@ -218,13 +218,13 @@ class CodeGeneration:
         image: Image.Image,
         x: int,
         y: int,
-        color: str
+        color: Color
     ) -> None:
         
         if image is not None:
             draw = ImageDraw.Draw(image, "RGBA")
 
-            color_channel = (0, 0, 0, 255) if color == "black" else (255, 255, 255, 255)
+            color_channel = (0, 0, 0, 255) if color is Color.BLACK else (255, 255, 255, 255)
 
             draw.rectangle(
                 [
@@ -245,60 +245,60 @@ class CodeGeneration:
         def draw_search_pattern(
                 x: int,
                 y: int,
-                exclude_border: Literal["TopLeft", "TopRight", "BottomLeft"]
+                exclude_border: Border
             ) -> None:
 
             match exclude_border:
-                case "TopLeft":
+                case Border.TOP_LEFT:
                     for i in range(7):
                         for j in range(7):
-                            self.module_drawing(module_size, image, x + i, y + j, color="black")
+                            self.module_drawing(module_size, image, x + i, y + j, color=Color.BLACK)
                     for i in range(5):
                         for j in range(5):
-                            self.module_drawing(module_size, image, x + i + 1, y + j + 1, "white")
+                            self.module_drawing(module_size, image, x + i + 1, y + j + 1, Color.WHITE)
                     for i in range(3):
                         for j in range(3):
-                            self.module_drawing(module_size, image, x + i + 2, y + j + 2, "black")
+                            self.module_drawing(module_size, image, x + i + 2, y + j + 2, Color.BLACK)
                     for i in range(7):
-                        self.module_drawing(module_size, image, 7, i, "white")
+                        self.module_drawing(module_size, image, 7, i, Color.WHITE)
                     for i in range(8):
-                        self.module_drawing(module_size, image, i, 7, "white")
+                        self.module_drawing(module_size, image, i, 7, Color.WHITE)
             
-                case "TopRight":
+                case Border.TOP_RIGHT:
                     for i in range(7):
                         for j in range(7):
-                            self.module_drawing(module_size, image, x - i, y + j, "black")
+                            self.module_drawing(module_size, image, x - i, y + j, Color.BLACK)
                     for i in range(5):
                         for j in range(5):
-                            self.module_drawing(module_size, image, x - i - 1, y + j + 1, "white")
+                            self.module_drawing(module_size, image, x - i - 1, y + j + 1, Color.WHITE)
                     for i in range(3):
                         for j in range(3):
-                            self.module_drawing(module_size, image, x - i - 2, y + j + 2, "black")
+                            self.module_drawing(module_size, image, x - i - 2, y + j + 2, Color.BLACK)
                     for i in range(7):
-                        self.module_drawing(module_size, image, x - 7, i, "white")
+                        self.module_drawing(module_size, image, x - 7, i, Color.WHITE)
                     for i in range(8):
-                        self.module_drawing(module_size, image, x - i, 7, "white")
+                        self.module_drawing(module_size, image, x - i, 7, Color.WHITE)
             
-                case "BottomLeft":
+                case Border.BOTTOM_LEFT:
                     for i in range(7):
                         for j in range(7):
-                            self.module_drawing(module_size, image, x + i, y - j, "black")
+                            self.module_drawing(module_size, image, x + i, y - j, Color.BLACK)
                     for i in range(5):
                         for j in range(5):
-                            self.module_drawing(module_size, image, x + i + 1, y - j - 1, "white")
+                            self.module_drawing(module_size, image, x + i + 1, y - j - 1, Color.WHITE)
                     for i in range(3):
                         for j in range(3):
-                            self.module_drawing(module_size, image, x + i + 2, y - j - 2, "black")
+                            self.module_drawing(module_size, image, x + i + 2, y - j - 2, Color.BLACK)
                     for i in range(7):
-                        self.module_drawing(module_size, image, 7, y - i, "white")
+                        self.module_drawing(module_size, image, 7, y - i, Color.WHITE)
                     for i in range(8):
-                        self.module_drawing(module_size, image, i, y - 7, "white")
+                        self.module_drawing(module_size, image, i, y - 7, Color.WHITE)
 
-        draw_search_pattern(0, 0, exclude_border="TopLeft")
+        draw_search_pattern(0, 0, exclude_border=Border.TOP_LEFT)
         
         if modules_number >= 7:
-            draw_search_pattern(modules_number - 1, 0, exclude_border="TopRight")
-            draw_search_pattern(0, modules_number - 1, exclude_border="BottomLeft")
+            draw_search_pattern(modules_number - 1, 0, exclude_border=Border.TOP_RIGHT)
+            draw_search_pattern(0, modules_number - 1, exclude_border=Border.BOTTOM_LEFT)
 
     def alignment_pattern_drawing(
         self,
@@ -315,14 +315,14 @@ class CodeGeneration:
                     image, 
                     x + i - 2, 
                     y + j - 2, 
-                    color="black"
+                    color=Color.BLACK
                 )
 
         for i in range(3):
             for j in range(3):
-                self.module_drawing(module_size, image, x - 1 + i, y - 1 + j, "white")
+                self.module_drawing(module_size, image, x - 1 + i, y - 1 + j, Color.WHITE)
 
-        self.module_drawing(module_size, image, x, y, "black")
+        self.module_drawing(module_size, image, x, y, Color.BLACK)
 
     def gen_alignment_pattern(self, image: Image.Image, module_size) -> None:
         positions = tables.ALIGNMENT_PATTERN[self.version_number]
@@ -366,30 +366,26 @@ class CodeGeneration:
         modules_number = self.get_modules_number()
         x = 8
         y = 6
-        stripe_color = "black"
+        stripe_color = Color.BLACK
 
         while x < modules_number - 7:
 
             if not self.is_in_alignment_pattern(x, y):
                 self.module_drawing(module_size, image, x, y, stripe_color)
 
-            stripe_color = "white" if stripe_color == "black" else "black"
+            stripe_color = ~stripe_color
             x += 1
         
         x = 6
         y = 8
-        stripe_color = "black"
+        stripe_color = Color.BLACK
 
         while y < modules_number - 7:
 
             if not self.is_in_alignment_pattern(x, y):
                 self.module_drawing(module_size, image, x, y, stripe_color)
 
-            if stripe_color == "black":
-                stripe_color = "white"
-
-            else:
-                stripe_color = "black"
+            stripe_color = ~stripe_color
             y += 1
 
     def draw_code_version(
@@ -403,7 +399,7 @@ class CodeGeneration:
         version_code = tables.VERSION_CODES[self.version_number]
 
         for i in range(len(version_code)):
-            color = "black" if version_code[i] == "1" else "white"
+            color = Color.BLACK if version_code[i] == "1" else Color.WHITE
 
             if i < 6:
                 self.module_drawing(module_size, image, offset_x, offset_y + i, color)
@@ -430,7 +426,7 @@ class CodeGeneration:
         mask = (x/3 + y/2) % 2
 
         if mask == 0:
-            color = "black" if color == "white" else "white"
+            color = ~color
         return color
 
     def draw_mask_code(self, mask: int, image: Image.Image, module_size) -> None:
@@ -438,10 +434,10 @@ class CodeGeneration:
         code = str(tables.MASK_CODE[mask])
         j = 0
 
-        self.module_drawing(module_size, image, 8, modules_number - 8, "black")
+        self.module_drawing(module_size, image, 8, modules_number - 8, Color.BLACK)
 
         for i in range(7):
-            color = "white" if code[i] == "0" else "black"
+            color = Color.WHITE if code[i] == "0" else Color.BLACK
             self.module_drawing(module_size, image, 8, modules_number - 1 - i, color)
 
             if j == 6:
@@ -454,7 +450,7 @@ class CodeGeneration:
 
         for i in range(7, len(code)):
 
-            color = "white" if code[i] == "0" else "black"
+            color = Color.WHITE if code[i] == "0" else Color.BLACK
             
             self.module_drawing(
                 module_size, image, modules_number - 8 + i - 7, 8, color
@@ -505,14 +501,12 @@ class CodeGeneration:
                         return False
         return True
     
-    def fill_qr_data(self, image: Image.Image, qr_data, module_size) -> None:
+    def fill_qr_data(self, image: Image.Image, qr_data: str, module_size) -> None:
         modules_number = self.get_modules_number()
         data_index = 0
 
-        #cols = list(range(modules_number - 1, -1, -2))
         col = modules_number - 1
         direction = -1
-        i = 1
 
         while col >= 0:
             if col == 6:
@@ -529,68 +523,16 @@ class CodeGeneration:
 
                     if self.is_empty_module(module_size, image, x, y):
                         if data_index < len(qr_data):
-                            color = "white" if int(qr_data[data_index]) == 0 else "black"
+                            color = Color.WHITE if qr_data[data_index] == "0" else Color.BLACK
                             color = self.masking(x, y, color)
                             self.module_drawing(module_size, image, x, y, color)
                             data_index += 1
 
                         else:
-                            color = "white"
+                            color = Color.WHITE
                             color = self.masking(x, y, color)
                             self.module_drawing(
                                 module_size, image, x, y, color
                             )
-                    #     i += 1
-
-                    # if i == 10000:
-                    #     image = ImageOps.expand(image, border=4 * module_size, fill="white")
-                    #     image.save("../Sources/qr_code.png")
-                    #     image.show()
-                    #     exit(0)
-
             direction = -direction
             col -= 2
-
-
-
-        # for col in range(modules_number - 1, -1, -2):
-        #     for row in range(modules_number - 1, -1, -1):
-        #         for x_offset in range(2):
-        #             x = col - x_offset
-        #             y = row
-                    
-        #             if self.is_empty_module(module_size, image, x, y):
-        #                 if data_index < len(qr_data):
-
-        #                     color = "white" if int(qr_data[data_index]) == 0 else "black"
-        #                     color = self.masking(x, y, color)
-        #                     self.module_drawing(module_size, image, x, y, color)
-        #                     data_index += 1
-
-        #                 else:
-        #                     color = "white"
-        #                     color = self.masking(x, y, color)
-        #                     self.module_drawing(
-        #                         module_size, image, x, y, color
-        #                     )  # Если данные закончились, заполняем 0
-        #                     image = ImageOps.expand(image, border=4 * module_size, fill="white")
-        #                     image.save("../Sources/qr_code.png")
-        #                     image.show()
-        #     # Двигаемся вверх
-        #     for row in range(modules_number):
-        #         for x_offset in range(2):
-        #             x = col - x_offset
-        #             y = row
-
-        #             if self.is_empty_module(module_size, image, x, y):
-        #                 if data_index < len(qr_data):
-        #                     color = "white" if int(qr_data[data_index]) == 0 else "black"
-        #                     color = self.masking(x, y, color)
-        #                     self.module_drawing(module_size, image, x, y, color)
-        #                     data_index += 1
-        #                 else:
-        #                     color = "white"
-        #                     color = self.masking(x, y, color)
-        #                     self.module_drawing(module_size, image, x, y, color)
-
-
