@@ -387,7 +387,7 @@ class CodeGeneration:
             stripe_color = ~stripe_color
             y += 1
 
-    def draw_code_version(
+    def draw_version_code(
         self,
         offset_x: int,
         offset_y: int,
@@ -437,12 +437,12 @@ class CodeGeneration:
     @staticmethod
     def masking(x: int, y: int, mask_num: int, color: str) -> str:
         if CodeGeneration.apply_mask(x, y, mask_num) == 0:
-            color = ~color
+            color = Color.BLACK
         return color
 
     def draw_mask_code(self, mask: int, image: Image.Image, module_size) -> None:
         modules_number = self.get_modules_number()
-        code = str(tables.MASK_CODE[mask])
+        code = tables.MASK_CODE[mask]
         j = 0
 
         self.module_drawing(module_size, image, 8, modules_number - 8, Color.BLACK)
@@ -535,13 +535,13 @@ class CodeGeneration:
                     if self.is_empty_module(module_size, image, x, y):
                         if data_index < len(qr_data):
                             color = Color.WHITE if qr_data[data_index] == "0" else Color.BLACK
-                            color = self.masking(x, y, mask_num, color)
+                            color = self.masking(x, modules_number - y - 1, mask_num, color)
                             self.module_drawing(module_size, image, x, y, color)
                             data_index += 1
 
                         else:
                             color = Color.WHITE
-                            color = self.masking(x, y, mask_num, color)
+                            color = self.masking(x, modules_number - y - 1, mask_num, color)
                             self.module_drawing(
                                 module_size, image, x, y, color
                             )
